@@ -8,6 +8,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
+from sklearn.metrics import accuracy_score
 
 def create_model(learn_rate=0.01, momentum=0):
     
@@ -37,14 +38,23 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
 model = KerasClassifier(build_fn=create_model, epochs=100, batch_size=10, verbose=0)
 
-# define the grid search parameters
-params = {
-    "learn_rate" : [0.001, 0.01, 0.1, 0.2, 0.3],
-    "momentum" : [0.0, 0.2, 0.4, 0.6, 0.9, 0.9]
-}
+# params = {
+#     "learn_rate" : np.linspace(0.1, 0.000001, num=10),
+# }
 
-model_cv = GridSearchCV(estimator=model, param_grid=params, n_jobs=-1, cv=10, verbose=2).fit(X_train, y_train)
+# # define the grid search parameters
+# params = {
+#     "learn_rate" : [0.001, 0.01, 0.1, 0.2, 0.3],
+#     "momentum" : [0.0, 0.2, 0.4, 0.6, 0.9, 0.9]
+# }
 
-print("Best: %f using %s" % (model_cv.best_score_, model_cv.best_params_))
+# model_cv = GridSearchCV(estimator=model, param_grid=params, n_jobs=-1, cv=10, verbose=2).fit(X_train, y_train)
 
+# print("Best: %f using %s" % (model_cv.best_score_, model_cv.best_params_))
 
+tuned_model = create_model(learn_rate=0.01, momentum=0.6)
+tuned_model.fit(X_train, y_train)
+
+loss, accuracy = tuned_model.evaluate(X_test, y_test, verbose=0)
+print('Accuracy: %f' % (accuracy))
+print('Loss: %f' % (loss))
